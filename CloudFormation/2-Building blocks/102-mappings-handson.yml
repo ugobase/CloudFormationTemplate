@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Ec2 instances template"
+
+Parameters:
+  Environment:
+    Description: "application environment"
+    Default: "dev"
+    Type: String
+    AllowedValues:
+      - dev
+      - test
+      - stage
+      - prod
+
+Mappings:
+  RegionMap: 
+    us-east-1: 
+      "linux": "ami-00c39f71452c08778"
+    us-west-1: 
+      "linux": "ami-0bdb828fd58c52235"
+    eu-west-1: 
+      "linux": "ami-047bb4163c506cd98"
+    ap-southeast-1: 
+      "linux": "ami-08569b978cc4dfa10"
+    ap-northeast-1: 
+      "linux": "ami-06cd52961ce9f0d85"
+    us-west-2: 
+      "linux": "ami-0efa651876de2a5ce"  
+  
+  InstanceTypeMap:
+    dev:
+      "Type": "t2.nano"
+    test:
+      "Type": "t2.micro"
+    stage:
+      "Type": "t2.small"
+    prod:
+      "Type": "t2.medium"
+
+Resources:
+  webserver:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", linux]
+      InstanceType: !FindInMap [InstanceTypeMap, !Ref Environment, "Type"]
+      BlockDeviceMappings: 
+      - DeviceName: "/dev/xvda"
+        Ebs: 
+          VolumeType: "io1"
+          Iops: "200"
+          DeleteOnTermination: true
+          VolumeSize: "8"

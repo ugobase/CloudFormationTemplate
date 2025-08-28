@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Cloudformation template to create EC2 instance'
+Parameters:
+  InstanceType:
+    Description: Newserver EC2 instance type
+    Type: String
+    Default: "t2.micro"   
+    ConstraintDescription: must be a valid EC2 instance type.
+
+  AMIID:
+    Description: The EC2 AMI id
+    Type: String
+    Default: ami-00c39f71452c08778
+    ConstraintDescription: Must be a valid AMI based on the region
+
+  VolumeSize:
+    Description: EBS Volume size
+    Type: Number
+    Default: 8
+    MinValue: 8
+    MaxValue: 100
+    ConstraintDescription: must be a number between 8 to 100 Gb
+
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.  
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId:
+        Ref: AMIID
+      InstanceType:
+        Ref: InstanceType
+      KeyName:
+        Ref: KeyName      
+      BlockDeviceMappings:
+        -
+          DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2            
+            DeleteOnTermination: true
+            VolumeSize: !Ref VolumeSize
+Outputs:
+  Ec2instanceId:
+    Description: Ec2 instance id
+    Value: !Ref AMIID
+    Export:
+      Name: "Newserver"
+  Ec2Pubsubnet:
+    Description: Ec2 public subnet id
+    Value: !GetAtt
+      - EC2Instance
+      - PublicIp
+    Export:
+      Name: "PublicSubnet"
+  Ec2Prisubnet:
+    Description: Ec2 private subnet id
+    Value: !GetAtt
+      - EC2Instance
+      - PrivateIp
+    Export:
+      Name: "PrivateSubnet"    

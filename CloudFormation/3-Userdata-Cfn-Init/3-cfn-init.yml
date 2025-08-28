@@ -1,0 +1,40 @@
+Resources:
+  MyInstance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: "ami-06e46074ae430fba6"
+      InstanceType: t2.micro
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ex
+          yum update -y
+          # Install the AWS CLI
+          pip install awscli
+          # Run cfn-init to install and configure software
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource MyInstance --region ${AWS::Region}
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          myConfigSet:
+            - myInstall
+            - myConfigure
+        myInstall:
+          packages:
+            yum:
+              httpd: []
+              php: []
+          files:
+            /var/www/html/index.php:
+              content: !Sub |
+                <?php
+                echo "<h1>Welcome to my app!</h1>";
+                ?>
+              mode: "000644"
+              owner: "apache"
+              group: "apache"
+        myConfigure:
+          services:
+            sysvinit:
+              httpd:
+                enabled: "true"
+                ensureRunning: "true"

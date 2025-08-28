@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Ec2 instances template"
+
+Parameters:
+  AMIID:
+    Description: "Ec2 Image Id"
+    Type: String
+    Default: "ami-00c39f71452c08778"
+  InstanceType:
+    Description: "Type of Ec2 instance"
+    Default: "t2.micro"
+    Type: String
+
+Resources:
+  webserver:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMIID
+      InstanceType: !Ref InstanceType
+      BlockDeviceMappings: 
+      - DeviceName: "/dev/xvda"
+        Ebs: 
+          VolumeType: "io1"
+          Iops: "200"
+          DeleteOnTermination: true
+          VolumeSize: "8"
+
+ 

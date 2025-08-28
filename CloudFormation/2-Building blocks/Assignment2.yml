@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Cloudformation template to create EIP'
+Resources:
+  EIP:
+    Type: AWS::EC2::EIP
+Outputs:
+  ElasticIPOutput:
+    Description: EIP Id
+    Value: !Ref EIP
+    Export:
+      Name: "EIPId"
+      
